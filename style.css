@@ -1,23 +1,73 @@
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f4f7f6; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.active-player { text-align: center; background: #2c3e50; color: white; padding: 30px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-.active-player h2 { font-size: 2.5em; margin: 0 0 10px 0; }
-.active-player p { font-size: 1.2em; margin: 5px 0; color: #bdc3c7; }
-.control-panel { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-.control-panel h3 { margin: 0; padding-right: 20px; border-right: 2px solid #eee; }
-.teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-.team-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: 5px solid #3498db; }
-.credits { font-size: 28px; font-weight: bold; color: #27ae60; margin: 10px 0; }
-button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; background: #3498db; color: white; font-weight: bold; font-size: 14px; transition: 0.2s; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10px 20px; background: #f4f7f6; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0;}
+
+/* Main Dashboard Grid - Forces 5/6 and 1/6 split */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 5fr 1fr; 
+    gap: 15px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* Main Area Splits (Top 1/3, Bottom 2/3) */
+.main-area {
+    display: grid;
+    grid-template-rows: 1fr 2.5fr; 
+    gap: 15px;
+    overflow: hidden;
+}
+
+/* Current Player Cards */
+.current-player-section { display: flex; flex-direction: column; gap: 10px; }
+.active-player-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.info-card { background: white; padding: 15px; text-align: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: 4px solid #2c3e50; }
+.highlight-card { background: #2c3e50; color: white; border-top: none; }
+.info-card small { display: block; color: #7f8c8d; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; font-size: 0.8em; }
+.info-card h2 { margin: 0; font-size: 1.5em; }
+.info-card h3 { margin: 0; font-size: 1.2em; }
+
+/* Admin Controls */
+.control-panel { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.control-panel h3 { margin: 0; padding-right: 15px; border-right: 2px solid #eee; }
+
+/* Teams Columns Format */
+.teams-columns {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 vertical columns */
+    gap: 10px;
+    overflow-y: auto;
+}
+.team-card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: 5px solid #3498db; display: flex; flex-direction: column; }
+.team-card h3 { margin: 0 0 5px 0; font-size: 1.1em; text-align: center; }
+.credits { font-size: 20px; font-weight: bold; color: #27ae60; text-align: center; margin-bottom: 5px; }
+.squad-size { text-align: center; font-size: 0.85em; color: #7f8c8d; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+.team-card ul { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+.team-card li { padding: 5px 0; border-bottom: 1px solid #f1f2f6; display: flex; justify-content: space-between; font-size: 0.9em; }
+
+/* History Sidebar (1/6th Right) */
+.history-sidebar {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.history-sidebar h2 { margin: 0 0 15px 0; font-size: 1.2em; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+.history-list { list-style: none; padding: 0; margin: 0; }
+.history-list li { padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 5px; border-radius: 4px; font-size: 0.9em; }
+.status-sold { background: #e8f8f5; border-left: 3px solid #2ecc71; }
+.status-unsold { background: #fdf2e9; border-left: 3px solid #e67e22; }
+.hist-name { font-weight: bold; display: block; }
+.hist-status { font-size: 0.8em; color: #7f8c8d; }
+
+/* Buttons & Inputs */
+button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; background: #3498db; color: white; font-weight: bold; font-size: 14px; }
 button:hover { background: #2980b9; }
-.sell-btn { background: #e74c3c; font-size: 16px; padding: 10px 30px; }
-.sell-btn:hover { background: #c0392b; }
+.sell-btn { background: #e74c3c; padding: 8px 25px; }
 .btn-success { background: #27ae60; }
-.btn-success:hover { background: #2196f3; }
 .btn-secondary { background: #95a5a6; }
-.btn-secondary:hover { background: #7f8c8d; }
 .btn-danger { background: #c0392b; }
-input[type="number"], select { padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-ul { list-style-type: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto; }
-li { padding: 8px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-.player-price { font-weight: bold; color: #e74c3c; }
+input[type="number"], select { padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; width: 100px; }

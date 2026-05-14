@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cricket Auction Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <!-- SheetJS library for reading/writing Excel in the browser -->
+    <!-- SheetJS for browser-based Excel parsing -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -19,29 +19,58 @@
         </div>
     </div>
 
-    <div class="active-player" id="playerDisplay">
-        <h2>Upload Excel to Start</h2>
-    </div>
-
-    <div class="control-panel" id="adminControls" style="display:none;">
-        <h3>Admin Controls</h3>
-        <label>Current Bid:</label>
-        <input type="number" id="bidAmount" value="2" step="2" min="2">
+    <div class="dashboard-layout">
         
-        <select id="teamSelect">
-            <option value="1">Team Alpha</option>
-            <option value="2">Team Beta</option>
-            <option value="3">Team Gamma</option>
-            <option value="4">Team Delta</option>
-            <option value="5">Team Epsilon</option>
-            <option value="6">Team Zeta</option>
-        </select>
+        <!-- MAIN CONTENT (5/6th of screen) -->
+        <div class="main-area">
+            
+            <!-- TOP SECTION: Current Player & Controls (1/3rd height) -->
+            <div class="current-player-section">
+                <div class="active-player-container" id="playerDisplay" style="display: none;">
+                    <div class="info-card">
+                        <small>Player Name</small>
+                        <h2 id="dispName">--</h2>
+                    </div>
+                    <div class="info-card">
+                        <small>Role</small>
+                        <h3 id="dispRole">--</h3>
+                    </div>
+                    <div class="info-card highlight-card">
+                        <small>Players Remaining</small>
+                        <h2 id="dispRemaining">0</h2>
+                    </div>
+                </div>
 
-        <button class="sell-btn" onclick="sellPlayer()">SOLD!</button>
-        <button onclick="passPlayer()" class="btn-secondary">UNSOLD / PASS</button>
+                <div class="control-panel" id="adminControls" style="display:none;">
+                    <h3>Admin Controls</h3>
+                    <label>Bid Amount:</label>
+                    <input type="number" id="bidAmount" value="2" step="1" min="2">
+                    
+                    <select id="teamSelect">
+                        <option value="1">Team Alpha</option>
+                        <option value="2">Team Beta</option>
+                        <option value="3">Team Gamma</option>
+                        <option value="4">Team Delta</option>
+                        <option value="5">Team Epsilon</option>
+                        <option value="6">Team Zeta</option>
+                    </select>
+
+                    <button class="sell-btn" onclick="sellPlayer()">SOLD!</button>
+                    <button onclick="passPlayer()" class="btn-secondary">PASS (UNSOLD)</button>
+                </div>
+            </div>
+
+            <!-- BOTTOM SECTION: Teams Columns (Remaining 2/3rds height) -->
+            <div class="teams-columns" id="teamsGrid"></div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: History (1/6th of screen) -->
+        <div class="history-sidebar">
+            <h2>Auction History</h2>
+            <ul id="historyList" class="history-list"></ul>
+        </div>
+
     </div>
-
-    <div class="teams-grid" id="teamsGrid"></div>
 
     <script src="app.js"></script>
 </body>
