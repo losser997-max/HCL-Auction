@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HCL - 2026 Auction Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <!-- SheetJS for browser-based Excel parsing -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -39,14 +38,8 @@
                     </div>
                     <div class="control-group">
                         <label>Select Team</label>
-                        <select id="teamSelect">
-                            <option value="1">Team A</option>
-                            <option value="2">Team B</option>
-                            <option value="3">Team C</option>
-                            <option value="4">Team D</option>
-                            <option value="5">Team E</option>
-                            <option value="6">Team F</option>
-                        </select>
+                        <!-- Options are now injected by app.js so they update when you change team names -->
+                        <select id="teamSelect"></select>
                     </div>
                     <div class="control-buttons">
                         <button class="sell-btn" onclick="sellPlayer()">SOLD!</button>

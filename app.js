@@ -13,11 +13,19 @@ let teams = JSON.parse(localStorage.getItem('auctionTeams')) || JSON.parse(JSON.
 
 updateUI();
 
-// 1. Load & Strictly Randomize Excel Data
+// 1. Load & Randomize (With Confirmation)
 function loadExcel() {
     const fileInput = document.getElementById('fileInput');
     const file = fileInput.files[0];
+    
     if (!file) return alert("Please select an Excel file first.");
+
+    // Confirmation Dialog
+    if (players.length > 0 || historyLog.length > 0) {
+        if (!confirm("Are you sure you want to load a new list? This will replace the current player queue.")) {
+            return;
+        }
+    }
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -26,7 +34,7 @@ function loadExcel() {
         const sheetName = workbook.SheetNames[0];
         let sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
         
-        // Robust Randomization (Fisher-Yates Shuffle)
+        // Fisher-Yates Shuffle
         for (let i = sheetData.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [sheetData[i], sheetData[j]] = [sheetData[j], sheetData[i]];
@@ -40,16 +48,22 @@ function loadExcel() {
     reader.readAsArrayBuffer(file);
 }
 
-// 2. Max Bid Calculation (15 Player Quota, 2 Cr Min)
-function calculateMaxBid(team) {
-    const neededPlayers = Math.max(0, 15 - team.roster.length);
-    // If buying the current player, they need (neededPlayers - 1) MORE players after.
-    const neededAfterCurrent = Math.max(0, neededPlayers - 1);
-    const reservedCredits = neededAfterCurrent * 2;
-    return team.credits - reservedCredits;
+// 2. Change Team Name Function
+function updateTeamName(teamId, newName) {
+    const team = teams.find(t => t.id === teamId);
+    if (team && newName.trim() !== '') {
+        team.name = newName.trim();
+        saveData();
+        updateUI();
+    }
 }
 
-// 3. Process SOLD Player
+function calculateMaxBid(team) {
+    const neededPlayers = Math.max(0, 15 - team.roster.length);
+    const neededAfterCurrent = Math.max(0, neededPlayers - 1);
+    return team.credits - (neededAfterCurrent * 2);
+}
+
 function sellPlayer() {
     if (players.length === 0) return alert("No players left in the pool!");
 
@@ -60,7 +74,7 @@ function sellPlayer() {
     const maxAllowedBid = calculateMaxBid(team);
 
     if (amount > maxAllowedBid) {
-        return alert(`TRANSACTION BLOCKED!\n\n${team.name} has ${team.credits} Cr left.\nThey must reserve at least ${team.credits - maxAllowedBid} Cr to fill out their mandatory 15-player squad.\n\nMAXIMUM BID ALLOWED: ${maxAllowedBid} Cr.`);
+        return alert(`TRANSACTION BLOCKED!\n\n${team.name} has ${team.credits} Cr left.\nThey must reserve at least ${team.credits - maxAllowedBid} Cr to fill their 15-player squad.\n\nMAXIMUM ALLOWED BID: ${maxAllowedBid} Cr.`);
     }
 
     const soldPlayer = players.shift();
@@ -70,25 +84,24 @@ function sellPlayer() {
     team.credits -= amount;
     team.roster.push(soldPlayer);
 
-    // Add to top of history
     historyLog.unshift({
+        player: soldPlayer, // Store whole object for the Excel download
         name: soldPlayer.Name || soldPlayer.name || 'Unknown',
         status: 'SOLD',
         detail: `${team.name} (${amount} Cr)`
     });
 
-    document.getElementById('bidAmount').value = 2; // Reset bid
+    document.getElementById('bidAmount').value = 2; 
     saveData();
     updateUI();
 }
 
-// 4. Process UNSOLD/PASS Player
 function passPlayer() {
     if (players.length === 0) return alert("No players left in the pool!");
     const passedPlayer = players.shift();
     
-    // Add to top of history
     historyLog.unshift({
+        player: passedPlayer, // Store whole object for the Excel download
         name: passedPlayer.Name || passedPlayer.name || 'Unknown',
         status: 'UNSOLD',
         detail: 'Passed'
@@ -99,10 +112,17 @@ function passPlayer() {
     updateUI();
 }
 
-// 5. Update entire user interface
 function updateUI() {
     const board = document.getElementById('auctionBoard');
     
+    // Update Dynamic Team Dropdown
+    const teamSelect = document.getElementById('teamSelect');
+    const currentVal = teamSelect.value;
+    teamSelect.innerHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    if (currentVal && teams.find(t => t.id == currentVal)) {
+        teamSelect.value = currentVal; // preserve selection
+    }
+
     // Active Player Area
     if (players.length > 0) {
         const p = players[0];
@@ -114,13 +134,13 @@ function updateUI() {
         board.style.display = 'none';
     }
 
-    // Teams Grid
+    // Teams Grid (Now with editable inputs for headers)
     const gridDiv = document.getElementById('teamsGrid');
     gridDiv.innerHTML = '';
     teams.forEach(team => {
         gridDiv.innerHTML += `
             <div class="team-card">
-                <h3>${team.name}</h3>
+                <input type="text" class="team-name-input" value="${team.name}" onchange="updateTeamName(${team.id}, this.value)" title="Click to edit team name">
                 <div class="credits">${team.credits}</div>
                 <div class="max-bid">Max Bid: ${calculateMaxBid(team)} Cr</div>
                 <ul>
@@ -150,37 +170,42 @@ function updateUI() {
     `).join('');
 }
 
-// 6. Export to Excel
+// 6. Structured Excel Export (Grouped by Team)
 function downloadResults() {
-    let exportData = [];
-    
+    if (historyLog.length === 0 && teams.every(t => t.roster.length === 0)) {
+        return alert("No data to export.");
+    }
+
+    // Create an Array of Arrays for custom formatting
+    let exportData = [
+        ["Team Name / Status", "Player Name", "Role", "Sold Price (Cr)"]
+    ];
+
+    // Append Sold Players grouped by Team
     teams.forEach(team => {
-        team.roster.forEach(player => {
-            exportData.push({
-                Team: team.name,
-                Player: player.Name || player.name || 'Unknown',
-                Role: player.Role || player.role || 'N/A',
-                Status: 'SOLD',
-                Sold_Price: player.Sold_Price
-            });
+        // Team Header Row
+        exportData.push([team.name.toUpperCase(), "", "", ""]);
+        
+        // Team Players
+        team.roster.forEach(p => {
+            exportData.push(["", p.Name || p.name || 'Unknown', p.Role || p.role || 'N/A', p.Sold_Price]);
         });
+        
+        // Blank row for spacing
+        exportData.push([]); 
     });
 
+    // Append Unsold Players
+    exportData.push(["UNSOLD PLAYERS", "", "", ""]);
     historyLog.forEach(item => {
         if (item.status === 'UNSOLD') {
-            exportData.push({
-                Team: 'NONE',
-                Player: item.name,
-                Role: 'N/A',
-                Status: 'UNSOLD',
-                Sold_Price: 0
-            });
+            let p = item.player;
+            exportData.push(["", p.Name || p.name || 'Unknown', p.Role || p.role || 'N/A', "0"]);
         }
     });
 
-    if (exportData.length === 0) return alert("No data to export.");
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    // Generate Excel File
+    const worksheet = XLSX.utils.aoa_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "HCL 2026 Results");
     XLSX.writeFile(workbook, "HCL_2026_Auction_Results.xlsx");
@@ -192,8 +217,9 @@ function saveData() {
     localStorage.setItem('auctionTeams', JSON.stringify(teams));
 }
 
+// 7. Reset Auction (With Confirmation)
 function resetAuction() {
-    if(confirm("WARNING: This will wipe all current auction data and reset everything to zero. Are you sure?")) {
+    if(confirm("WARNING: Are you absolutely sure? This will wipe all current auction data and reset everything to zero.")) {
         localStorage.clear();
         players = [];
         historyLog = [];

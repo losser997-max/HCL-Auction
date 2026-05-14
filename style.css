@@ -19,10 +19,14 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .control-group label { font-size: 0.85rem; font-weight: bold; color: #34495e; margin-bottom: 5px; text-transform: uppercase; }
 .control-buttons { display: flex; gap: 10px; margin-bottom: 2px; }
 
-/* Teams Grid */
+/* Teams Grid & Editable Headers */
 .teams-columns { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; overflow-y: auto; flex-grow: 1; }
 .team-card { background: white; padding: 15px 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 6px solid #34495e; display: flex; flex-direction: column; }
-.team-card h3 { margin: 0 0 10px 0; font-size: 1.2rem; text-align: center; color: #2c3e50; }
+
+.team-name-input { width: 100%; font-size: 1.2rem; font-weight: bold; text-align: center; color: #2c3e50; border: 1px dashed transparent; background: transparent; padding: 5px; margin-bottom: 5px; border-radius: 4px; transition: all 0.2s; box-sizing: border-box; }
+.team-name-input:hover { border-color: #bdc3c7; background: #fdfefe; cursor: text; }
+.team-name-input:focus { border-color: #3498db; border-style: solid; background: white; outline: none; }
+
 .credits { font-size: 26px; font-weight: bold; color: #27ae60; text-align: center; margin-bottom: 2px; }
 .max-bid { text-align: center; font-size: 0.9rem; color: #e67e22; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
 .team-card ul { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
