@@ -13,6 +13,17 @@ let teams = JSON.parse(localStorage.getItem('auctionTeams')) || JSON.parse(JSON.
 
 updateUI();
 
+// Helper to determine role color class
+function getRoleColorClass(role) {
+    if (!role) return 'role-default';
+    const r = role.toLowerCase();
+    if (r.includes('bat')) return 'role-batsman';
+    if (r.includes('bowl')) return 'role-bowler';
+    if (r.includes('all') || r.includes('ar')) return 'role-allrounder';
+    if (r.includes('wk') || r.includes('keep')) return 'role-wicketkeeper';
+    return 'role-default';
+}
+
 // 1. Load & Randomize (With Confirmation)
 function loadExcel() {
     const fileInput = document.getElementById('fileInput');
@@ -20,7 +31,6 @@ function loadExcel() {
     
     if (!file) return alert("Please select an Excel file first.");
 
-    // Confirmation Dialog
     if (players.length > 0 || historyLog.length > 0) {
         if (!confirm("Are you sure you want to load a new list? This will replace the current player queue.")) {
             return;
@@ -85,7 +95,7 @@ function sellPlayer() {
     team.roster.push(soldPlayer);
 
     historyLog.unshift({
-        player: soldPlayer, // Store whole object for the Excel download
+        player: soldPlayer,
         name: soldPlayer.Name || soldPlayer.name || 'Unknown',
         status: 'SOLD',
         detail: `${team.name} (${amount} Cr)`
@@ -101,7 +111,7 @@ function passPlayer() {
     const passedPlayer = players.shift();
     
     historyLog.unshift({
-        player: passedPlayer, // Store whole object for the Excel download
+        player: passedPlayer,
         name: passedPlayer.Name || passedPlayer.name || 'Unknown',
         status: 'UNSOLD',
         detail: 'Passed'
@@ -120,7 +130,7 @@ function updateUI() {
     const currentVal = teamSelect.value;
     teamSelect.innerHTML = teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
     if (currentVal && teams.find(t => t.id == currentVal)) {
-        teamSelect.value = currentVal; // preserve selection
+        teamSelect.value = currentVal;
     }
 
     // Active Player Area
@@ -129,12 +139,17 @@ function updateUI() {
         document.getElementById('dispName').innerText = p.Name || p.name || 'Unknown Player';
         document.getElementById('dispRole').innerText = p.Role || p.role || 'Role N/A';
         document.getElementById('dispRemaining').innerText = players.length;
+        
+        // Display Achievements
+        const achievementText = p.Achievement || p.achievement || p.Achievements || p.achievements || 'No recent achievements listed';
+        document.getElementById('dispAchievement').innerText = achievementText;
+        
         board.style.display = 'flex';
     } else {
         board.style.display = 'none';
     }
 
-    // Teams Grid (Now with editable inputs for headers)
+    // Teams Grid
     const gridDiv = document.getElementById('teamsGrid');
     gridDiv.innerHTML = '';
     teams.forEach(team => {
@@ -142,15 +157,16 @@ function updateUI() {
             <div class="team-card">
                 <input type="text" class="team-name-input" value="${team.name}" onchange="updateTeamName(${team.id}, this.value)" title="Click to edit team name">
                 <div class="credits">${team.credits}</div>
+                <div class="squad-size">${team.roster.length} / 15 Players</div>
                 <div class="max-bid">Max Bid: ${calculateMaxBid(team)} Cr</div>
                 <ul>
                     ${team.roster.map(p => `
                         <li>
                             <div class="player-meta">
                                 <strong>${p.Name || p.name}</strong>
-                                <small>${p.Role || p.role}</small>
+                                <small class="${getRoleColorClass(p.Role || p.role)}">${p.Role || p.role}</small>
                             </div>
-                            <strong style="color:#e74c3c;">${p.Sold_Price}</strong>
+                            <span class="player-price">${p.Sold_Price}</span>
                         </li>
                     `).join('')}
                 </ul>
@@ -163,11 +179,13 @@ function updateUI() {
     historyList.innerHTML = historyLog.map(h => `
         <li class="${h.status === 'SOLD' ? 'status-sold' : 'status-unsold'}">
             <strong>${h.name}</strong>
-            <span style="color:#7f8c8d; font-size: 0.85rem;">
-                ${h.status === 'SOLD' ? `Sold to ${h.detail}` : 'UNSOLD'}
-            </span>
+            <span>${h.status === 'SOLD' ? `Sold → ${h.detail}` : 'UNSOLD'}</span>
         </li>
     `).join('');
+
+    // Update log count badge
+    const logCount = document.getElementById('logCount');
+    if (logCount) logCount.textContent = historyLog.length;
 }
 
 // 6. Structured Excel Export (Grouped by Team)
@@ -176,35 +194,28 @@ function downloadResults() {
         return alert("No data to export.");
     }
 
-    // Create an Array of Arrays for custom formatting
     let exportData = [
-        ["Team Name / Status", "Player Name", "Role", "Sold Price (Cr)"]
+        ["Team Name / Status", "Player Name", "Role", "Achievement", "Sold Price (Cr)"]
     ];
 
-    // Append Sold Players grouped by Team
     teams.forEach(team => {
-        // Team Header Row
-        exportData.push([team.name.toUpperCase(), "", "", ""]);
-        
-        // Team Players
+        exportData.push([team.name.toUpperCase(), "", "", "", ""]);
         team.roster.forEach(p => {
-            exportData.push(["", p.Name || p.name || 'Unknown', p.Role || p.role || 'N/A', p.Sold_Price]);
+            const achievementText = p.Achievement || p.achievement || p.Achievements || p.achievements || 'N/A';
+            exportData.push(["", p.Name || p.name || 'Unknown', p.Role || p.role || 'N/A', achievementText, p.Sold_Price]);
         });
-        
-        // Blank row for spacing
         exportData.push([]); 
     });
 
-    // Append Unsold Players
-    exportData.push(["UNSOLD PLAYERS", "", "", ""]);
+    exportData.push(["UNSOLD PLAYERS", "", "", "", ""]);
     historyLog.forEach(item => {
         if (item.status === 'UNSOLD') {
             let p = item.player;
-            exportData.push(["", p.Name || p.name || 'Unknown', p.Role || p.role || 'N/A', "0"]);
+            const achievementText = p.Achievement || p.achievement || p.Achievements || p.achievements || 'N/A';
+            exportData.push(["", p.Name || p.name || 'Unknown', p.Role || p.role || 'N/A', achievementText, "0"]);
         }
     });
 
-    // Generate Excel File
     const worksheet = XLSX.utils.aoa_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "HCL 2026 Results");

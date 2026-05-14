@@ -3,58 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HCL - 2026 Auction Dashboard</title>
+    <title>HCL — 2026 Auction Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-    <div class="header">
-        <h1>HCL - 2026</h1>
-        <div class="controls-top">
-            <input type="file" id="fileInput" accept=".xlsx, .xls">
-            <button onclick="loadExcel()">1. Load & Randomize Players</button>
-            <button onclick="downloadResults()" class="btn-success">Download Results</button>
-            <button onclick="resetAuction()" class="btn-danger">Reset Board</button>
+
+    <div class="bg-grid"></div>
+
+    <header class="header">
+        <div class="header-brand">
+            <div class="header-logo-mark">HCL</div>
+            <div class="header-title-group">
+                <span class="header-subtitle">CRICKET LEAGUE</span>
+                <span class="header-year">AUCTION 2026</span>
+            </div>
         </div>
-    </div>
+        <div class="header-live-badge">
+            <span class="live-dot"></span>LIVE
+        </div>
+        <div class="controls-top">
+            <label class="file-label" for="fileInput">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Load Players
+            </label>
+            <input type="file" id="fileInput" accept=".xlsx, .xls">
+            <button onclick="loadExcel()" class="btn-primary">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                Randomize
+            </button>
+            <button onclick="downloadResults()" class="btn-success">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+            </button>
+            <button onclick="resetAuction()" class="btn-danger">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                Reset
+            </button>
+        </div>
+    </header>
 
     <div class="dashboard-layout">
-        
-        <!-- MAIN CONTENT (Left Side) -->
+
         <div class="main-area">
-            
-            <!-- PROMINENT ACTIVE PLAYER AREA -->
-            <div class="active-auction-board" id="auctionBoard" style="display: none;">
+
+            <div class="active-auction-board" id="auctionBoard" style="display:none;">
+                <div class="broadcast-overlay-lines"></div>
                 <div class="player-showcase">
-                    <h2 id="dispName">Player Name</h2>
-                    <h3 id="dispRole">Role</h3>
-                    <p class="remaining-text">Players Remaining in Pool: <span id="dispRemaining">0</span></p>
+                    <div class="on-air-tag">ON THE BLOCK</div>
+                    <h2 id="dispName" class="player-name">Player Name</h2>
+                    <div class="role-badge" id="dispRole">Role</div>
+                    <div class="player-achievement" id="dispAchievement"></div>
+                    <p class="remaining-text">
+                        <span id="dispRemaining">0</span>
+                        <span class="remaining-label">players remaining</span>
+                    </p>
                 </div>
+
+                <div class="divider-vertical"></div>
 
                 <div class="bidding-controls">
                     <div class="control-group">
-                        <label>Bid Amount</label>
+                        <label>BID AMOUNT (Cr)</label>
                         <input type="number" id="bidAmount" value="2" step="1" min="2">
                     </div>
                     <div class="control-group">
-                        <label>Select Team</label>
-                        <!-- Options are now injected by app.js so they update when you change team names -->
+                        <label>TEAM</label>
                         <select id="teamSelect"></select>
                     </div>
                     <div class="control-buttons">
-                        <button class="sell-btn" onclick="sellPlayer()">SOLD!</button>
-                        <button class="btn-secondary" onclick="passPlayer()">PASS</button>
+                        <button class="sell-btn" onclick="sellPlayer()">
+                            <span class="sell-hammer">🔨</span> SOLD
+                        </button>
+                        <button class="pass-btn" onclick="passPlayer()">PASS</button>
                     </div>
                 </div>
             </div>
 
-            <!-- TEAMS GRID (6 Columns) -->
             <div class="teams-columns" id="teamsGrid"></div>
         </div>
 
-        <!-- RIGHT SIDEBAR (Auctioned Players History) -->
         <div class="history-sidebar">
-            <h2>Auctioned Players</h2>
+            <div class="sidebar-header">
+                <h2>Auction Log</h2>
+                <div class="log-count-badge" id="logCount">0</div>
+            </div>
             <ul id="historyList" class="history-list"></ul>
         </div>
 
