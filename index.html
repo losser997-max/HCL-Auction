@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Auction Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SheetJS library for reading/writing Excel in the browser -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>IPL-Style Auction Dashboard</h1>
+        <div class="controls-top">
+            <input type="file" id="fileInput" accept=".xlsx, .xls">
+            <button onclick="loadExcel()">1. Load Players</button>
+            <button onclick="downloadResults()" class="btn-success">Download Results</button>
+            <button onclick="resetAuction()" class="btn-danger">Reset Auction</button>
+        </div>
+    </div>
+
+    <div class="active-player" id="playerDisplay">
+        <h2>Upload Excel to Start</h2>
+    </div>
+
+    <div class="control-panel" id="adminControls" style="display:none;">
+        <h3>Admin Controls</h3>
+        <label>Current Bid:</label>
+        <input type="number" id="bidAmount" value="2" step="2" min="2">
+        
+        <select id="teamSelect">
+            <option value="1">Team Alpha</option>
+            <option value="2">Team Beta</option>
+            <option value="3">Team Gamma</option>
+            <option value="4">Team Delta</option>
+            <option value="5">Team Epsilon</option>
+            <option value="6">Team Zeta</option>
+        </select>
+
+        <button class="sell-btn" onclick="sellPlayer()">SOLD!</button>
+        <button onclick="passPlayer()" class="btn-secondary">UNSOLD / PASS</button>
+    </div>
+
+    <div class="teams-grid" id="teamsGrid"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
