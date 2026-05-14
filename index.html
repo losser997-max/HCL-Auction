@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HCL — 2026 Auction Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
+    <!-- Ambient background noise layer -->
     <div class="bg-grid"></div>
 
+    <!-- HEADER -->
     <header class="header">
         <div class="header-brand">
             <div class="header-logo-mark">HCL</div>
@@ -45,17 +47,21 @@
         </div>
     </header>
 
+    <!-- MAIN LAYOUT -->
     <div class="dashboard-layout">
 
+        <!-- LEFT: Main content -->
         <div class="main-area">
 
+            <!-- ACTIVE PLAYER BOARD -->
             <div class="active-auction-board" id="auctionBoard" style="display:none;">
                 <div class="broadcast-overlay-lines"></div>
                 <div class="player-showcase">
                     <div class="on-air-tag">ON THE BLOCK</div>
                     <h2 id="dispName" class="player-name">Player Name</h2>
                     <div class="role-badge" id="dispRole">Role</div>
-                    <div class="player-achievement" id="dispAchievement"></div>
+                    <!-- ACHIEVEMENT SECTION -->
+                    <div class="achievement-strip" id="dispAchievement" style="display:none;"></div>
                     <p class="remaining-text">
                         <span id="dispRemaining">0</span>
                         <span class="remaining-label">players remaining</span>
@@ -82,9 +88,11 @@
                 </div>
             </div>
 
+            <!-- TEAMS GRID -->
             <div class="teams-columns" id="teamsGrid"></div>
         </div>
 
+        <!-- RIGHT: History Sidebar -->
         <div class="history-sidebar">
             <div class="sidebar-header">
                 <h2>Auction Log</h2>

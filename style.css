@@ -21,6 +21,13 @@
     --white: #f0f4ff;
     --white-dim: rgba(240, 244, 255, 0.7);
 
+    /* Role Colors */
+    --role-batsman-color:    #f59e0b;   /* amber  */
+    --role-bowler-color:     #60a5fa;   /* sky blue */
+    --role-allrounder-color: #a78bfa;   /* violet  */
+    --role-keeper-color:     #34d399;   /* teal    */
+    --role-default-color:    #94a3b8;   /* slate   */
+
     --font-display: 'Bebas Neue', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
     --font-body: 'Barlow', sans-serif;
@@ -321,17 +328,38 @@ button {
     letter-spacing: 2px;
     color: var(--gold-400);
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
-.player-achievement {
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    color: var(--slate-light);
-    margin-bottom: 12px;
-    font-style: italic;
-    max-width: 80%;
-    line-height: 1.4;
+/* =============================================
+   ACHIEVEMENT STRIP — Active Player
+   ============================================= */
+.achievement-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    background: rgba(201, 168, 76, 0.07);
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    border-radius: 6px;
+    padding: 7px 12px;
+    animation: name-flash 0.4s ease;
+    max-width: fit-content;
+}
+
+.ach-icon {
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.ach-text {
+    font-family: var(--font-condensed);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--gold-300);
+    line-height: 1.3;
 }
 
 .remaining-text {
@@ -346,18 +374,16 @@ button {
 
 .remaining-text span:first-child {
     font-family: var(--font-display);
-    font-size: 2rem;
-    color: var(--slate-light);
-    line-height: 1;
+    font-size: 1.6rem;
+    color: var(--white-dim);
 }
 
-.remaining-label { text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; }
+.remaining-label { font-size: 0.75rem; }
 
-/* Vertical Divider */
 .divider-vertical {
     width: 1px;
-    height: 70px;
-    background: linear-gradient(to bottom, transparent, rgba(201, 168, 76, 0.3), transparent);
+    align-self: stretch;
+    background: linear-gradient(to bottom, transparent, rgba(201, 168, 76, 0.25), transparent);
     flex-shrink: 0;
 }
 
@@ -529,15 +555,6 @@ select option { background: var(--navy-800); }
     letter-spacing: 1px;
 }
 
-.squad-size {
-    text-align: center;
-    font-family: var(--font-condensed);
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--slate-light);
-    margin: 4px 0 6px 0;
-}
-
 .max-bid {
     text-align: center;
     font-family: var(--font-condensed);
@@ -546,9 +563,36 @@ select option { background: var(--navy-800); }
     letter-spacing: 2px;
     color: rgba(230, 126, 34, 0.9);
     text-transform: uppercase;
-    padding: 2px 0 8px 0;
+    padding: 5px 0 4px 0;
+}
+
+/* =============================================
+   SQUAD COUNT BADGE
+   ============================================= */
+.squad-count {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 0 8px 0;
     margin-bottom: 6px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.squad-num {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--white-dim);
+    letter-spacing: 1px;
+}
+
+.squad-label {
+    font-family: var(--font-condensed);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--slate);
+    text-transform: uppercase;
 }
 
 .team-card ul {
@@ -559,19 +603,61 @@ select option { background: var(--navy-800); }
     scrollbar-color: rgba(201, 168, 76, 0.1) transparent;
 }
 
+/* =============================================
+   PLAYER ROW — Role Color Coding
+   ============================================= */
 .team-card li {
-    padding: 6px 2px;
+    padding: 5px 6px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     display: flex;
     justify-content: space-between;
     align-items: center;
     animation: player-enter 0.35s ease;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    border-left: 3px solid transparent;
+    transition: background 0.2s;
 }
 
 @keyframes player-enter {
     from { opacity: 0; transform: translateX(-6px); }
     to { opacity: 1; transform: translateX(0); }
 }
+
+/* Batsman — amber */
+.role-batsman {
+    border-left-color: var(--role-batsman-color);
+    background: rgba(245, 158, 11, 0.05);
+}
+.role-batsman .player-meta small { color: var(--role-batsman-color); }
+
+/* Bowler — sky blue */
+.role-bowler {
+    border-left-color: var(--role-bowler-color);
+    background: rgba(96, 165, 250, 0.05);
+}
+.role-bowler .player-meta small { color: var(--role-bowler-color); }
+
+/* All-rounder — violet */
+.role-allrounder {
+    border-left-color: var(--role-allrounder-color);
+    background: rgba(167, 139, 250, 0.05);
+}
+.role-allrounder .player-meta small { color: var(--role-allrounder-color); }
+
+/* Wicket-keeper — teal */
+.role-keeper {
+    border-left-color: var(--role-keeper-color);
+    background: rgba(52, 211, 153, 0.05);
+}
+.role-keeper .player-meta small { color: var(--role-keeper-color); }
+
+/* Default / unknown */
+.role-default {
+    border-left-color: var(--role-default-color);
+    background: rgba(148, 163, 184, 0.04);
+}
+.role-default .player-meta small { color: var(--role-default-color); }
 
 .player-meta { display: flex; flex-direction: column; gap: 1px; }
 
@@ -587,6 +673,7 @@ select option { background: var(--navy-800); }
     font-size: 0.68rem;
     letter-spacing: 0.5px;
     font-weight: 600;
+    text-transform: uppercase;
 }
 
 .player-price {
@@ -597,13 +684,43 @@ select option { background: var(--navy-800); }
 }
 
 /* =============================================
-   ROLE COLOR CODING
+   ROLE LEGEND (bottom of teams grid)
    ============================================= */
-.role-batsman { color: #5dade2; }       /* Light Blue */
-.role-bowler { color: #2ecc71; }        /* Emerald Green */
-.role-allrounder { color: #f1c40f; }    /* Yellow / Gold */
-.role-wicketkeeper { color: #9b59b6; }  /* Purple */
-.role-default { color: var(--slate); }
+.role-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 10px;
+    background: rgba(13, 21, 38, 0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-condensed);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--slate-light);
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-dot.batsman    { background: var(--role-batsman-color); }
+.legend-dot.bowler     { background: var(--role-bowler-color); }
+.legend-dot.allrounder { background: var(--role-allrounder-color); }
+.legend-dot.keeper     { background: var(--role-keeper-color); }
+
 
 /* =============================================
    HISTORY SIDEBAR
@@ -704,6 +821,7 @@ select option { background: var(--navy-800); }
     color: var(--slate);
     letter-spacing: 0.5px;
 }
+
 
 /* =============================================
    SCROLLBARS (global)
